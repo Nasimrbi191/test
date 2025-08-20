@@ -1,0 +1,69 @@
+ .language-switcher {
+     position: relative;
+     display: inline-block;
+ }
+
+ .language-switcher__select {
+     appearance: none;
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     background-color: #ffffff;
+     border: 1px solid #dee2e6;
+     border-radius: 4px;
+     padding: 5px;
+     cursor: pointer;
+     width: 40px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: border-color 0.3s ease;
+ }
+
+ .language-switcher__select:hover {
+     border-color: #007bff;
+ }
+
+ .language-switcher__flag {
+     width: 20px;
+     height: 20px;
+     border-radius: 4px;
+ }
+
+ .language-switcher__dropdown {
+     position: absolute;
+     top: 100%;
+     left: 0;
+     background-color: #ffffff;
+     border: 1px solid #dee2e6;
+     border-radius: 4px;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+     z-index: 10;
+     width: 60px;
+     margin-top: 5px;
+ }
+
+ .language-switcher__option {
+     padding: 5px;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: background-color 0.3s ease;
+ }
+
+ .language-switcher__option:hover {
+     background-color: #f8f9fa;
+ }
+
+ .language-switcher__option img {
+     width: 20px;
+     height: 20px;
+     border-radius: 4px;
+ }
+
+ .welcome-text {
+     margin-top: 20px;
+     font-size: 1.5rem;
+     color: #333;
+     text-align: center;
+ }

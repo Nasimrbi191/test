@@ -1,0 +1,12 @@
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 16px;
+}
+.nav-links li a {
+  text-decoration: none;
+  color: #000;
+}
+.nav-links li a:hover {
+  text-decoration: underline;
+}/*# sourceMappingURL=Navbar.css.map */

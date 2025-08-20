@@ -1,0 +1,17 @@
+.hero-wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.hero-wrapper button {
+  margin-top: 20px;
+  padding: 15px 25px;
+  background-color: #FF9800;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.hero-wrapper button:hover {
+  background-color: #ff7700;
+}/*# sourceMappingURL=HeroSection.css.map */

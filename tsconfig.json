@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "moduleResolution": "node",
+  "compilerOptions": {
+    "erasableSyntaxOnly": false,
+  },
+  "include": ["src", ".d.ts"]
+}

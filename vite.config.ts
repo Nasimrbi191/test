@@ -17,7 +17,7 @@ export default defineConfig({
         'favicon.svg',
         'robots.txt',
         'pwa-icons/*',
-        'splash-screens/*',
+        'pwa-splash-screens/*',
       ],
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,json}'], // cache all assets
@@ -35,7 +35,6 @@ export default defineConfig({
           },
         ]
       },
-
     })
   ],
   server: {

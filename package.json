@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -32,7 +32,7 @@
     "slick-carousel": "^1.8.1",
     "stylis": "^4.3.6",
     "stylis-plugin-rtl": "^2.1.1",
-    "swiper": "^11.2.10",
+    "swiper": "^7.3.1",
     "vazirmatn": "^33.0.3"
   },
   "devDependencies": {

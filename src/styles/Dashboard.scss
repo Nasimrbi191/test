@@ -1,8 +1,8 @@
 .dashboard {
   display: flex;
-  height: 100vh;
   background: #f5f7fb;
   font-family: "Segoe UI", sans-serif;
+  min-height: 100vh;
 
   &__sidebar {
     width: 220px;

@@ -49,6 +49,16 @@ $secondary-color: #6c757d;
 .slide {
     position: relative;
     outline: none;
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 9px;
+        background: rgba(0, 0, 0, 0.5);
+        transition: opacity 0.3s ease;
+    }
 }
 
 .slide-image {
@@ -73,7 +83,6 @@ $secondary-color: #6c757d;
     top: 50%;
     transform: translateY(-50%) translateX(-50%) !important;
     text-align: center;
-    background: rgba(0, 0, 0, 0.6);
     padding: 1.5rem;
     border-radius: 8px;
     color: #fff;

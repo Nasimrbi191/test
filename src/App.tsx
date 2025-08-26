@@ -15,6 +15,8 @@ import Login from './pages/Login/Login'
 import Dashboard from './pages/Dashboard/Dashboard'
 import { AuthProvider } from './Context/authContext'
 import RouteProtection from './RouteProtection/RouteProtection'
+import LiveChart from './components/LiveChart/LiveChart'
+import DashboardHome from './pages/DashboardHome/DashboardHome'
 
 function App() {
   const [language, setLanguage] = useState(i18next.language);
@@ -49,13 +51,15 @@ function App() {
         <AuthProvider>
           <ThemeProvider theme={theme}>
             {
-
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<RouteProtection><Dashboard /></RouteProtection>} />
+                <Route path="/dashboard" element={<RouteProtection><Dashboard /></RouteProtection>}>
+                  <Route path="" element={<DashboardHome />} />
+                  <Route path="analytics" element={<LiveChart />} />
+                </Route>
               </Routes>
             }
             <CssBaseline />

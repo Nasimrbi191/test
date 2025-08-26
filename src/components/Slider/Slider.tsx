@@ -18,13 +18,13 @@ import i18next from 'i18next';
 const slides = [
     {
         id: 1,
-        image: '/01.jpg',
+        image: '/manufacturing-3.png',
         title: 'Explore New Horizons',
         description: 'Discover breathtaking experiences with our premium services.',
     },
     {
         id: 2,
-        image: '02.jpg',
+        image: '/digital-factory_2-2-1024x614.jpg',
         title: 'Innovative Solutions',
         description: 'Transform your ideas into reality with cutting-edge technology.',
     },
@@ -66,10 +66,10 @@ const SwiperSlider = () => {
                 spaceBetween={0}
                 slidesPerView={1}
                 effect="fade"
-                autoplay={{
-                    delay: 3000,
-                    disableOnInteraction: false,
-                }}
+                // autoplay={{
+                //     delay: 3000,
+                //     disableOnInteraction: false,
+                // }}
                 navigation={true}
                 pagination={{
                     clickable: true,
@@ -87,16 +87,18 @@ const SwiperSlider = () => {
                     <SwiperSlide key={slide.id}>
                         <div className="slide">
                             <img src={slide.image} alt={slide.title} className="slide-image" />
-                            <motion.div
-                                className="slide-content"
-                                variants={contentVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                <h3 className="slide-title">{t(slide.title)}</h3>
-                                <p className="slide-description">{t(slide.description)}</p>
-                                <button className="slide-button">{t('Learn More')}</button>
-                            </motion.div>
+                            <div className='overlay'>
+                                <motion.div
+                                    className="slide-content"
+                                    variants={contentVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                >
+                                    <h3 className="slide-title">{t(slide.title)}</h3>
+                                    <p className="slide-description">{t(slide.description)}</p>
+                                    <button className="slide-button">{t('Learn More')}</button>
+                                </motion.div>
+                            </div>
                         </div>
                     </SwiperSlide>
                 ))}

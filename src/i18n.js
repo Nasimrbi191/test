@@ -9,6 +9,7 @@ i18next
   .use(initReactI18next) // Bind i18next to React
   .init({
     fallbackLng: "en", // Default language if detection fails
+    lng: "fr", // Initial language
     supportedLngs: ["en", "fr"], // Supported languages
     backend: {
       loadPath: "/locales/{{lng}}/translation.json", // Path to translation files

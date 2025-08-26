@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../Hooks/useAuth';
-import '../../styles/Dashboard.scss'
-
+import '../../styles/Dashboard.scss';
+import LanguageSwitcher from '../../LanguageSwitcher';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 interface userInfoType {
     id: string;
     email: string;
@@ -11,59 +13,57 @@ interface userInfoType {
 
 function Dashboard() {
     const { userInfo }: { userInfo: userInfoType | null } = useAuth();
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const handleLogOut = () => {
+        localStorage.removeItem('token');
+        navigate('/');
+    };
 
     return (
         <div className="dashboard">
             {/* Sidebar */}
             <div className="dashboard__sidebar">
-                <h2 className="logo">MyApp</h2>
+                <h2 className="logo">{t('Main Dashboard')}</h2>
                 <ul>
-                    <li className="active">🏠 Dashboard</li>
-                    <li>📊 Analytics</li>
-                    <li>👤 Profile</li>
-                    <li>⚙️ Settings</li>
+                    <li>
+                        <Link to="/dashboard" className="active">
+                            🏠 {t('Dashboard')}
+                        </Link>
+                    </li>
+                    <li>
+                        📊 <Link to="/dashboard/analytics">{t('Analytics')}</Link>
+                    </li>
+                    <li>👤 {t('Profile')}</li>
+                    <li>⚙️ {t('Settings')}</li>
+                    <li>📝 {t('Help')}</li>
+                    <li onClick={handleLogOut}>🔒 {t('Logout')}</li>
+                    <li>
+                        🌐 <Link to="/">{t('Home Page')}</Link>
+                    </li>
                 </ul>
             </div>
             {/* Main content */}
             <div className="dashboard__main">
                 {/* Topbar */}
                 <div className="dashboard__topbar">
-                    <h2>Welcome back, {userInfo?.firstName} 👋</h2>
-                    <div className="profile">
-                        <img
-                            src="https://i.pravatar.cc/40"
-                            alt="user avatar"
-                            className="avatar"
-                        />
-                        <span>{userInfo?.firstName}</span>
+                    <h2>
+                        {t('Welcome back')}, {userInfo?.firstName} 👋
+                    </h2>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="profile">
+                            <img
+                                src="https://i.pravatar.cc/40"
+                                alt="user avatar"
+                                className="avatar"
+                            />
+                            <span>{userInfo?.firstName}</span>
+                        </div>
+                        <LanguageSwitcher />
                     </div>
                 </div>
-
-                {/* Stats cards */}
-                <div className="stats">
-                    <div className="card">
-                        <h3>💰 Earnings</h3>
-                        <p>$4,200</p>
-                    </div>
-                    <div className="card">
-                        <h3>📦 Orders</h3>
-                        <p>128</p>
-                    </div>
-                    <div className="card">
-                        <h3>👥 Customers</h3>
-                        <p>512</p>
-                    </div>
-                </div>
-
-                {/* Recent activity */}
-                <div className="recent">
-                    <h3>Recent Activity</h3>
-                    <ul>
-                        <li>✅ Order #1234 completed</li>
-                        <li>💬 New message from Sarah</li>
-                        <li>🔔 Subscription renewed</li>
-                    </ul>
-                </div>
+                <Outlet />
             </div>
         </div>
     );

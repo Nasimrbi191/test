@@ -11,7 +11,7 @@ export default defineConfig({
       injectRegister: 'auto',
       devOptions: {
         enabled: true,
-        type: 'module', // Use ES modules for the service worker,
+        type: 'module',
       },
       includeAssets: [
         'favicon.svg',

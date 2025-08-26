@@ -2,39 +2,17 @@ import '../../styles/Login.scss'
 import { Button, TextField } from '@mui/material'
 import { useTranslation } from 'react-i18next';
 import { Field, Form } from 'react-final-form';
-import api from '../../instanceAxios/instanceAxios';
 import { useAuth } from '../../Hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useLogin } from '../../Hooks/useLogin';
 
 
 function Login() {
     const required = (value: string) => (value ? undefined : "Required");
     const { t } = useTranslation();
-    const { setToken, setRefreshToken , setUserInfo  } = useAuth();
-   const navigate = useNavigate();
-
+    const { setToken, setRefreshToken, setUserInfo } = useAuth();
+    const loginMutation = useLogin({setToken, setRefreshToken, setUserInfo});
     const handleSubmit = async (values: any) => {
-        const formData = new FormData();
-        formData.append("username", values.username);
-        formData.append("password", values.password);
-        try {
-            const res = await api.post(
-                "/core/Authenticate/login",
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                },
-            );
-            localStorage.setItem("token", res.data.data.loginInfo.token);
-            setToken(res.data.data.loginInfo.token);
-            setRefreshToken(res.data.data.loginInfo.refreshToken);
-            setUserInfo(res.data.data.loginInfo.user);
-            navigate("/dashboard");
-        } catch (error) {
-            console.error("Login failed:", error);
-        }
+       loginMutation.mutate(values);
     };
     return (
         <div
@@ -51,11 +29,11 @@ function Login() {
                     onSubmit={handleSubmit}
                     render={({ handleSubmit, submitting, pristine }) => (
                         <form onSubmit={handleSubmit}>
-                            <Field name="username" validate={required}>
+                            <Field name="Email" validate={required}>
                                 {({ input, meta }) => (
                                     <TextField
                                         {...input}
-                                        label={t("username")}
+                                        label={t("Email")}
                                         variant="outlined"
                                         fullWidth
                                         margin="normal"
@@ -64,12 +42,12 @@ function Login() {
                                     />
                                 )}
                             </Field>
-                            <Field name="password" validate={required}>
+                            <Field name="Password" validate={required}>
                                 {({ input, meta }) => (
                                     <TextField
                                         {...input}
-                                        type="password"
-                                        label={t("password")}
+                                        type="Password"
+                                        label={t("Password")}
                                         variant="outlined"
                                         fullWidth
                                         margin="normal"

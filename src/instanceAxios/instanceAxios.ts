@@ -1,7 +1,11 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL: "https://mahoorism.com/api/", // 🌍 
+interface ApiConfig {
+  port: number;
+}
+
+const api = ({ port }: ApiConfig) => axios.create({
+  baseURL: `http://localhost:${port}`, // 🌍 
   headers: {
     "Content-Type": "application/json",
   },

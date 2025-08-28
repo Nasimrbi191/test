@@ -4,35 +4,33 @@ import api from "../instanceAxios/instanceAxios";
 interface UseMutateDataProps {
     key: string;
     route: string;
-    port: number;
-    method?: "post" | "put" | "delete";
+    method: "post" | "put" | "delete";
+    param?: string | number; // optional param for URL
+    port?: number;
+    query?: Record<string, any>; // optional query parameters
 }
 
-const useMutateData = ({ key, route, port, method = "post" }: UseMutateDataProps) => {
+const useMutateData = ({ key, route, method, param, port , query }: UseMutateDataProps) => {
     const queryClient = useQueryClient();
     const instanceAxios = api({ port });
 
     const mutation = useMutation({
-        mutationFn: async (data?: any) => {
-            switch (method) {
-                case "post":
-                    return (await instanceAxios.post(route, data)).data;
-                case "put":
-                    return (await instanceAxios.put(route, data)).data;
-                case "delete":
-                    return (await instanceAxios.delete(route, { data })).data;
-                default:
-                    throw new Error(`Unsupported method: ${method}`);
-            }
+        mutationFn: async (payload: any) => {
+            const url = param ? `${route}/${param}` : route; // append param if exists
+            const response = await instanceAxios.request({
+                url,
+                method,
+                data: payload,
+                params: query,
+            });
+            return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [key] });
         },
     });
 
-    return mutation; // return full mutation object (no need for extra wrapper)
+    return mutation;
 };
-
-
 
 export default useMutateData;

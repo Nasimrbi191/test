@@ -1,20 +1,25 @@
 import {
     Paper, Table, TableBody, TableCell, tableCellClasses,
     TableContainer, TableHead, TableRow, Tooltip, Chip,
-    Button
+    Button,
+    IconButton
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import useGetData from '../../Hooks/useGetdata';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import { useState } from 'react';
 import QualityControlFormCreate from '../../Modals/QualityControlFormCreate';
+import QualityControlFormEdit from '../../Modals/QualityControlFormEdit';
 
 
 function QualityControlEntry() {
     const { t } = useTranslation();
     const { data, isLoading, error } = useGetData({ key: "qualityControlEntry", route: "/api/control/QualityControlEntries", port: 5262 });
     const [isShowAddFormModal, setIsShowAddFormModal] = useState(false);
+    const [isShowEditModal, setIsShowEditModal] = useState(false);
+    const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
 
     if (isLoading) return <p>Loading...</p>;
     if (error) return <p>Error loading data</p>;
@@ -31,11 +36,10 @@ function QualityControlEntry() {
         [`&.${tableCellClasses.body}`]: {
             fontSize: 13,
             color: theme.palette.text.primary,
+            wordWrap: "break-word",
+            whiteSpace: "normal",  // ✅ allow wrapping
         },
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        maxWidth: 180,
+        maxWidth: 200, // still limit super long text
     }));
 
     const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -59,9 +63,15 @@ function QualityControlEntry() {
         "شدید": "error",
     };
 
+    const handleEdit = (id: number) => {
+        setIsShowEditModal(true);
+        setSelectedEntryId(id);
+    }
+
     return (
         <>
             {isShowAddFormModal && <QualityControlFormCreate open={isShowAddFormModal} setOpen={setIsShowAddFormModal} />}
+            {isShowEditModal && <QualityControlFormEdit open={isShowEditModal} setOpen={setIsShowEditModal} selectedEntryId={selectedEntryId} />}
             <div style={{ marginBlock: '40px', maxWidth: "100%", overflowX: "auto" }}>
                 <Button
                     onClick={() => setIsShowAddFormModal(true)}
@@ -71,9 +81,10 @@ function QualityControlEntry() {
                     sx={{
                         borderRadius: '16px',
                         boxShadow: '0 6px 16px rgba(169,16,121,0.2)',
-                        overflowX: 'auto',
-                    }}>
-                    <Table stickyHeader aria-label="quality control table" sx={{ minWidth: 900, overflow: 'auto' }}>
+                        overflowX: "auto", // keep scroll only here
+                    }}
+                >
+                    <Table stickyHeader aria-label="quality control table" sx={{ minWidth: 900, tableLayout: "fixed" }}>
                         <TableHead>
                             <TableRow>
                                 <StyledTableCell>{t('id')}</StyledTableCell>
@@ -90,6 +101,7 @@ function QualityControlEntry() {
                                 <StyledTableCell>{t('InspectorName')}</StyledTableCell>
                                 <StyledTableCell>{t('MachineName')}</StyledTableCell>
                                 <StyledTableCell>{t('CompanyName')}</StyledTableCell>
+                                <StyledTableCell>{t('edit')}</StyledTableCell>
                             </TableRow>
                         </TableHead>
 
@@ -121,6 +133,7 @@ function QualityControlEntry() {
                                     <StyledTableCell>{row.personName || '-'}</StyledTableCell>
                                     <StyledTableCell>{row.machineName}</StyledTableCell>
                                     <StyledTableCell>{row.companyName}</StyledTableCell>
+                                    <StyledTableCell><IconButton onClick={() => handleEdit(row.qceId)}><EditIcon /></IconButton></StyledTableCell>
                                 </StyledTableRow>
                             ))}
                         </TableBody>

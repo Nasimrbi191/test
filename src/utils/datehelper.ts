@@ -1,32 +1,30 @@
-// utils/dateHelpers.ts
 import jalaali from "jalaali-js";
 
 /**
- * Convert Persian (Shamsi) date string to ISO string
- * @param persianDate - format "۱۴۰۴/۶/۱" or "1404/6/1"
- * @returns ISO string "2025-08-27T08:55:20.737Z"
+ * Convert a Persian date string (yyyy/mm/dd) to ISO string
+ * @param persianDate - "1404/04/31"
+ * @returns ISO string, e.g. "2025-07-22T00:00:00.000Z"
  */
-export const persianToISOString = (persianDate: string): string => {
-    // Convert Persian digits to English
-    const englishDate = persianDate.replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
+export function persianToISOString(persianDate: string): string | null {
+    if (!persianDate) return null;
 
-    // Split into year, month, day
-    const [jy, jm, jd] = englishDate.split("/").map(Number);
+    const parts = persianDate.split("/").map(Number);
 
-    // Convert to Gregorian
-    const { gy, gm, gd } = jalaali.toGregorian(jy, jm, jd);
+    if (parts.length !== 3) return null;
 
-    // Get current time
-    const now = new Date();
-    const isoDate = new Date(
-        gy,
-        gm - 1,
-        gd,
-        now.getHours(),
-        now.getMinutes(),
-        now.getSeconds(),
-        now.getMilliseconds()
-    );
+    let [jy, jm, jd] = parts;
 
-    return isoDate.toISOString();
-};
+    try {
+        // Validate and convert to Gregorian
+        const { gy, gm, gd } = jalaali.toGregorian(jy, jm, jd);
+
+        // Create ISO string
+        const date = new Date(gy, gm - 1, gd); // JS months are 0-based
+        if (isNaN(date.getTime())) return null;
+
+        return date.toISOString();
+    } catch (err) {
+        console.error("Invalid Persian date string:", persianDate);
+        return null;
+    }
+}

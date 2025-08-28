@@ -116,5 +116,7 @@
   "CompanyName": "نام کارخانه",
   "MachineName": "نام ماشین",
   "ProductName": "نام نوشیدنی",
-  "Add Quality Control Form": "افزودن فرم کنترل کیفیت"
+  "Add Quality Control Form": "افزودن فرم کنترل کیفیت",
+  "Something went wrong": "مشکلی پیش آمد",
+  "edit": "ویرایش"
 }

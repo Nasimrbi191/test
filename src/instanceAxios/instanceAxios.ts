@@ -8,6 +8,7 @@ const api = ({ port }: ApiConfig) => axios.create({
   baseURL: `http://localhost:${port}`, // 🌍 
   headers: {
     "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem("token")}`
   },
 });
 

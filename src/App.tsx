@@ -17,6 +17,7 @@ import { AuthProvider } from './Context/authContext'
 import RouteProtection from './RouteProtection/RouteProtection'
 import LiveChart from './components/LiveChart/LiveChart'
 import DashboardHome from './pages/DashboardHome/DashboardHome'
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [language, setLanguage] = useState(i18next.language);

@@ -1,7 +1,6 @@
 .dashboard {
   display: flex;
   background: #f5f7fb;
-  font-family: "Segoe UI", sans-serif;
   min-height: 100vh;
 
   &__sidebar {
@@ -9,6 +8,7 @@
     background: #2d2f36;
     color: #fff;
     padding: 20px;
+    flex-shrink: 0;
 
     .logo {
       font-size: 1.4rem;

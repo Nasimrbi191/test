@@ -20,7 +20,7 @@ import useMutateData from "../Hooks/useMutateData";
 import { persianToISOString } from "../utils/datehelper";
 import { t } from "i18next";
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 
 
 const style = {
@@ -76,11 +76,9 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
     const [defectId, setDefectId] = useState<string | "">("");
     const [currentSeverityId, setCurrentSeverityId] = useState<string | "">("");
 
-
     const { data } = useGetData({ key: 'controlFormQualityDatas', route: '/api/control/QualityControlEntries/EditOrCreateQCEPartial', port: 5262 });
 
-
-    const { data: filteredData, fetchWithParams } = useGetData({
+    const { data: filteredData, fetchWithParams, isSuccess } = useGetData({
         key: "controlFormQualityDatas",
         route: `/api/control/QualityControlEntries/UpdateQCEMachinesCategoriesByCompany`,
         port: 5262,
@@ -112,7 +110,6 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
 
     const FilterProductAndDevice = async (id: string) => {
         const result = await fetchWithParams({ id });
-        console.log("Fetched:", result);
         if (result.products) setProducts(result.products);
         if (result.machines) setMachines(result.machines);
     };
@@ -139,7 +136,7 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
     }, [singleData]);
 
     const { mutate } = useMutateData({
-        key: "createQualityControlEntry",
+        key: "qualityControlEntry",
         route: "/api/control/QualityControlEntries",
         method: "put",
         query: {
@@ -148,11 +145,7 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
         port: 5262,
     });
 
-    console.log(singleData?.qceId);
-
-
     const handleSubmit = () => {
-        // send multiple objects as separate entries in the body
         mutate(
             {
                 inspectionDate: persianToISOString(InspectionDate),
@@ -171,7 +164,7 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
             },
             {
                 onSuccess: () => {
-                    toast.success(t("Add Quality Control Form"));
+                    toast.success(t('Quality Control Form Edited Sucessfully'))
                     setOpen(false);
                 },
                 onError: () => {
@@ -184,7 +177,6 @@ export default function QualityControlFormEdit({ open, setOpen, selectedEntryId 
 
     return (
         <>
-            <ToastContainer />
             <Modal open={open} onClose={() => setOpen(false)}>
                 <Box sx={style}>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }} onClick={() => setOpen(false)}>

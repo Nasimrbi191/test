@@ -19,8 +19,8 @@ import ShamsiDatePicker from "../components/ShamsiDatePicker/ShamsiDatePicker";
 import useMutateData from "../Hooks/useMutateData";
 import { persianToISOString } from "../utils/datehelper";
 import { t } from "i18next";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {  toast } from 'react-toastify';
+
 
 
 const style = {
@@ -79,7 +79,7 @@ export default function CreateQualityControlForm({ open, setOpen }: CreateQualit
     };
 
     const { mutate } = useMutateData({
-        key: "createQualityControlEntry",
+        key: "qualityControlEntry",
         route: "/api/control/QualityControlEntries",
         method: "post",
         port: 5042,
@@ -87,8 +87,6 @@ export default function CreateQualityControlForm({ open, setOpen }: CreateQualit
 
 
     const handleSubmit = () => {
-        console.log(localStorage.getItem("token"));
-
         mutate(
             {
                 inspectionDate: persianToISOString(InspectionDate),
@@ -98,17 +96,17 @@ export default function CreateQualityControlForm({ open, setOpen }: CreateQualit
                 rootCause: RootCause,
                 correctiveAction: CorrectiveAction,
                 batchId: BatchNumber,
-                severityId: currentSeverity,
+                severityId: Number(currentSeverity),
                 defectId: currentDefectType,
-                machineId: MachineName,
+                machineId: Number(MachineName),
                 productId: ProductName,
                 personId: null,
                 companyId: CompanyName,
             },
             {
                 onSuccess: () => {
-                    setOpen(false);
-                    toast.success(t("Add Quality Control Form"));
+                    toast.success(t("Added Quality Control Form Successfully"));
+                    setOpen(false)
                 },
                 onError: () => {
                     toast.error(t("Something went wrong"));
@@ -119,7 +117,6 @@ export default function CreateQualityControlForm({ open, setOpen }: CreateQualit
 
     return (
         <>
-            <ToastContainer />
             <Modal open={open} onClose={() => setOpen(false)}>
                 <Box sx={style}>
                     <Box sx={{ display: "flex", justifyContent: "flex-end" }} onClick={() => setOpen(false)}>

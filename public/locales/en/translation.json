@@ -109,7 +109,14 @@
   "CompanyName": "CompanyName",
   "MachineName": "MachineName",
   "ProductName": "ProductName",
-  "Add Quality Control Form" : "Add Quality Control Form",
-  "Something went wrong" : "Something went wrong",
-  "edit" : "Edit"
+  "Added Quality Control Form Successfully": "Added Quality Control Form Successfully",
+  "ADD Quality Control Form": "ADD Quality Control Form",
+  "Something went wrong": "Something went wrong",
+  "edit": "Edit",
+  "Quality Control Form Edited Sucessfully": "Quality Control Form Edited Sucessfully",
+  "Are you sure you want to delete this item? This action cannot be undone.": "Are you sure you want to delete this item? This action cannot be undone.",
+  "Cancel": "Cancel",
+  "Yes, Delete": "Yes, Delete",
+  "Delete Confirmation": "Delete Confirmation",
+  "remove": "Remove"
 }

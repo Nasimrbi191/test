@@ -9,17 +9,34 @@ import { useTranslation } from 'react-i18next'
 import useGetData from '../../Hooks/useGetdata';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
 import QualityControlFormCreate from '../../Modals/QualityControlFormCreate';
 import QualityControlFormEdit from '../../Modals/QualityControlFormEdit';
+import 'react-toastify/dist/ReactToastify.css';
+import useMutateData from '../../Hooks/useMutateData';
+import { toast, ToastContainer } from 'react-toastify';
+import DeleteConfirmation from '../../Modals/DeleteConfirmation';
 
 
 function QualityControlEntry() {
     const { t } = useTranslation();
-    const { data, isLoading, error } = useGetData({ key: "qualityControlEntry", route: "/api/control/QualityControlEntries", port: 5262 });
+    const { data, isLoading, error, refetch } = useGetData({ key: "qualityControlEntry", route: "/api/control/QualityControlEntries", port: 5262 });
     const [isShowAddFormModal, setIsShowAddFormModal] = useState(false);
     const [isShowEditModal, setIsShowEditModal] = useState(false);
     const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
+    const [showModalConfirmation, setShowModalConfirmation] = useState(false);
+
+    const { mutate, isSuccess } = useMutateData({
+        key: 'qualityControlEntry',
+        route: "/api/control/QualityControlEntries",
+        method: "delete",
+        query: {
+            id: selectedEntryId
+        },
+        port: 5042,
+    })
+
 
     if (isLoading) return <p>Loading...</p>;
     if (error) return <p>Error loading data</p>;
@@ -63,25 +80,50 @@ function QualityControlEntry() {
         "شدید": "error",
     };
 
+
     const handleEdit = (id: number) => {
         setIsShowEditModal(true);
         setSelectedEntryId(id);
     }
 
+    const onDelete = () => {
+        mutate({
+            id: selectedEntryId
+        });
+        if (isSuccess) {
+            toast.success(t("Quality Control Entry removed successfully"));
+            refetch();
+            setShowModalConfirmation(false);
+        }
+    }
+    const handleRemove = (id: number) => {
+        console.log('Removing entry with id:', id);
+        setShowModalConfirmation(true);
+        setSelectedEntryId(id);
+    }
+
     return (
         <>
+            <ToastContainer />
+            {showModalConfirmation && (
+                <DeleteConfirmation
+                    open={showModalConfirmation}
+                    onClose={() => setShowModalConfirmation(false)}
+                    onDelete={onDelete}
+                />
+            )}
             {isShowAddFormModal && <QualityControlFormCreate open={isShowAddFormModal} setOpen={setIsShowAddFormModal} />}
             {isShowEditModal && <QualityControlFormEdit open={isShowEditModal} setOpen={setIsShowEditModal} selectedEntryId={selectedEntryId} />}
             <div style={{ marginBlock: '40px', maxWidth: "100%", overflowX: "auto" }}>
                 <Button
                     onClick={() => setIsShowAddFormModal(true)}
-                    variant="outlined" sx={{ marginBottom: '16px' }} color="primary" startIcon={<AddIcon />}>{t('Add Quality Control Form')}</Button>
+                    variant="outlined" sx={{ marginBottom: '16px' }} color="primary" startIcon={<AddIcon />}>{t('ADD Quality Control Form')}</Button>
                 <TableContainer
                     component={Paper}
                     sx={{
                         borderRadius: '16px',
                         boxShadow: '0 6px 16px rgba(169,16,121,0.2)',
-                        overflowX: "auto", // keep scroll only here
+                        overflowX: "auto",
                     }}
                 >
                     <Table stickyHeader aria-label="quality control table" sx={{ minWidth: 900, tableLayout: "fixed" }}>
@@ -102,6 +144,7 @@ function QualityControlEntry() {
                                 <StyledTableCell>{t('MachineName')}</StyledTableCell>
                                 <StyledTableCell>{t('CompanyName')}</StyledTableCell>
                                 <StyledTableCell>{t('edit')}</StyledTableCell>
+                                <StyledTableCell>{t('remove')}</StyledTableCell>
                             </TableRow>
                         </TableHead>
 
@@ -134,6 +177,7 @@ function QualityControlEntry() {
                                     <StyledTableCell>{row.machineName}</StyledTableCell>
                                     <StyledTableCell>{row.companyName}</StyledTableCell>
                                     <StyledTableCell><IconButton onClick={() => handleEdit(row.qceId)}><EditIcon /></IconButton></StyledTableCell>
+                                    <StyledTableCell><IconButton onClick={() => handleRemove(row.qceId)}><DeleteIcon /></IconButton></StyledTableCell>
                                 </StyledTableRow>
                             ))}
                         </TableBody>

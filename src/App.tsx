@@ -18,6 +18,7 @@ import RouteProtection from './RouteProtection/RouteProtection'
 import LiveChart from './components/LiveChart/LiveChart'
 import DashboardHome from './pages/DashboardHome/DashboardHome'
 import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify'
 
 function App() {
   const [language, setLanguage] = useState(i18next.language);
@@ -48,6 +49,7 @@ function App() {
   const cache = useMemo(() => createEmotionCache(isRtl), [isRtl]);
   return (
     <>
+      <ToastContainer />
       <CacheProvider value={cache}>
         <AuthProvider>
           <ThemeProvider theme={theme}>

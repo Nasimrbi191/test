@@ -116,7 +116,14 @@
   "CompanyName": "نام کارخانه",
   "MachineName": "نام ماشین",
   "ProductName": "نام نوشیدنی",
-  "Add Quality Control Form": "افزودن فرم کنترل کیفیت",
+  "Added Quality Control Form Successfully": "فرم کنترل کیفیت با موفقیت اضافه شد.",
+  "ADD Quality Control Form": " اضافه کردن فرم کنترل کیفیت",
   "Something went wrong": "مشکلی پیش آمد",
-  "edit": "ویرایش"
+  "edit": "ویرایش",
+  "Quality Control Form Edited Sucessfully": "فرم کنترل کیفیت با موفقیت ویرایش شد",
+  "Are you sure you want to delete this item? This action cannot be undone.": "آیا مطمئن هستید که می‌خواهید این مورد را حذف کنید؟ این عمل غیرقابل بازگشت است.",
+  "Cancel": "لغو",
+  "Yes, Delete": "بله، حذف کن",
+  "Delete Confirmation": "تأیید حذف",
+  "remove": "حذف"
 }

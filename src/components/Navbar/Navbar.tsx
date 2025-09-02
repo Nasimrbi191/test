@@ -16,9 +16,11 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import ContactSupportOutlinedIcon from "@mui/icons-material/ContactSupportOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import FactoryOutlinedIcon from "@mui/icons-material/FactoryOutlined"; // for factory vibe
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import LanguageSwitcher from "../../LanguageSwitcher";
+import * as signalR from "@microsoft/signalr";
+import { toast } from "react-toastify";
 
 const links = [
     { to: "/", label: "Home", icon: <HomeOutlinedIcon fontSize="medium" /> },
@@ -32,16 +34,55 @@ function Navbar() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [isOpenDrawer, setIsOpenDrawer] = useState(false);
-
     const [scrollY, setScrollY] = useState(0);
+    const [isOnline, setIsOnline] = useState(true);
+    const token = localStorage.getItem("token");
+
+    const fetchDataForTestingNetWorkStatus = async () => {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5042/hubs/qualitycontrol", {
+                accessTokenFactory: () => token ?? "",
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        connection
+            .start()
+            .then(() => {
+                console.log("Connected to QualityControlHub")
+                toast.success(t('Connected to server successfully'));
+                setIsOnline(true);
+            })
+            .catch((err) => {
+                console.error("Connection error:", err);
+                toast.error(t("Failed to connect to server"));
+                setIsOnline(false);
+            });
+    };
 
     useEffect(() => {
         const handleScroll = () => {
             setScrollY(window.scrollY);
         };
+        const handleNetworkChange = () => {
+            if (navigator.onLine) {
+                setIsOnline(true);
+            } else {
+                setIsOnline(false);
+            }
+        }
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+        window.addEventListener('load', handleNetworkChange)
+        window.addEventListener('online', handleNetworkChange);
+        window.addEventListener('offline', handleNetworkChange);
+        fetchDataForTestingNetWorkStatus();
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener('load', handleNetworkChange)
+            window.removeEventListener('online', handleNetworkChange);
+            window.removeEventListener('offline', handleNetworkChange);
+        };
+    }, [token]);
 
     // Navbar scroll hide/show
     const [showNavbar, setShowNavbar] = useState(true);
@@ -63,7 +104,6 @@ function Navbar() {
 
     // RTL / LTR fix based on language
     const direction = i18n.language === "fr" ? "rtl" : "ltr";
-
     return (
         <motion.div
             initial={{ y: -120, opacity: 0 }}
@@ -155,11 +195,14 @@ function Navbar() {
                                             }}
                                         >
                                             {link.icon}
-                                            <Typography variant="body1">{t(link.label)}</Typography>
+                                            <span>{t(link.label)}</span>
                                         </motion.div>
                                     </Link>
                                 ))}
                                 <LanguageSwitcher />
+                                <Typography variant="body2" color={isOnline ? "green" : "red"}>
+                                    {t(isOnline ? "status.online" : "status.offline")}
+                                </Typography>
                             </Box>
                         )}
                     </Box>

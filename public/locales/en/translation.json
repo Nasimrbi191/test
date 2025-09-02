@@ -118,5 +118,12 @@
   "Cancel": "Cancel",
   "Yes, Delete": "Yes, Delete",
   "Delete Confirmation": "Delete Confirmation",
-  "remove": "Remove"
+  "remove": "Remove",
+  "status": {
+    "online": "Online",
+    "offline": "Offline"
+  },
+  "Connected to server successfully": "Connected to server successfully",
+  "Failed to connect to server": "Failed to connect to server",
+  "current location" : " go current location"
 }

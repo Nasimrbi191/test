@@ -19,6 +19,9 @@ import LiveChart from './components/LiveChart/LiveChart'
 import DashboardHome from './pages/DashboardHome/DashboardHome'
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify'
+import 'leaflet/dist/leaflet.css';
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+
 
 function App() {
   const [language, setLanguage] = useState(i18next.language);

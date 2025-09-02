@@ -125,5 +125,12 @@
   "Cancel": "لغو",
   "Yes, Delete": "بله، حذف کن",
   "Delete Confirmation": "تأیید حذف",
-  "remove": "حذف"
+  "remove": "حذف",
+  "status": {
+    "online": "آنلاین",
+    "offline": "آفلاین"
+  },
+  "Connected to server successfully": "با موفقیت به سرور متصل شد",
+  "Failed to connect to server": "متصل شدن به سرور ناموفق بود",
+  "current location" : "برو به موقعیت مکانی فعلی"
 }

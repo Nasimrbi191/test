@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {
+      "id": "a9d65ec4-ebcd-48d9-9fe7-487374b330b6",
+      "label": "تست 1",
+      "children": [
+        {
+          "id": "c399c24a-f644-469e-a5f6-2c959f7c46f7",
+          "label": "تست فرزند 1",
+          "children": [],
+          "priority": "1"
+        }
+      ],
+      "priority": "1"
+    },
+    {
+      "id": "07ffa10e-4e99-490c-afe2-2deed16f864a",
+      "label": "تست 2",
+      "children": [
+        {
+          "id": "eca1066c-3d0a-47af-ba64-d73d4b7fa1da",
+          "label": "تست فرزند 2",
+          "children": [],
+          "priority": "1"
+        }
+      ],
+      "priority": "1"
+    }
+  ]
+}

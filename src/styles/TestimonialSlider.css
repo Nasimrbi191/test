@@ -136,6 +136,17 @@
   }
 }
 
+@media (max-width: 768px) {
+  .testimonial-swiper {
+    max-width: 100%;
+  }
+  .testimonial-swiper .testimonial-slide {
+    padding: 0px;
+  }
+  .testimonial-title {
+    font-size: 30px !important;
+  }
+}
 .testimonial-bg-element {
   position: absolute;
   width: 200px;

@@ -30,6 +30,7 @@ export default tseslint.config([
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
+      "react-hooks/exhaustive-deps": 'off'
     },
   },
 ])

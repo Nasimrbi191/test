@@ -42,6 +42,11 @@ function Dashboard() {
                     <li>
                         🌐 <Link to="/">{t('Home Page')}</Link>
                     </li>
+                    <li>
+                        <Link to={'nodes'}>
+                            🌟 {t('Nodes List')}
+                        </Link>
+                    </li>
                 </ul>
             </div>
             {/* Main content */}

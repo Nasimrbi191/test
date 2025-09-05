@@ -6,6 +6,10 @@ html {
   overflow-x: hidden;
   padding: 0px !important;
 }
+.mui-rtl-10d30g3-MuiPaper-root-MuiDialog-paper {
+  width: 500px;
+  max-width: 100% !important;
+}
 
 a {
   text-decoration: none;

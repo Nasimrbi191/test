@@ -152,5 +152,7 @@
   "Add Node Children": "افزودن فرزندان نود",
   "Parent Node": "والد نود",
   "Child Node": "فرزند نود",
-  "Please enter a node name and select a parent node." : "لطفاً نام نود را وارد کرده و یک والد نود انتخاب کنید."
+  "Please enter a node name and select a parent node.": "لطفاً نام نود را وارد کرده و یک والد نود انتخاب کنید.",
+  "Delete Child Node": "حذف فرزند نود",
+  "Are you sure you want to delete this child?": "آیا مطمئن هستید که می‌خواهید این فرزند را حذف کنید؟"
 }

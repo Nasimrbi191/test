@@ -145,5 +145,7 @@
   "Add Node Children": "Add Node Children",
   "Parent Node": "Parent Node",
   "Child Node": "Child Node",
-  "Please enter a node name and select a parent node." : "Please enter a node name and select a parent node."
+  "Please enter a node name and select a parent node." : "Please enter a node name and select a parent node.",
+  "Delete Child Node": "Delete Child Node",
+  "Are you sure you want to delete this child?": "Are you sure you want to delete this child?"
 }

@@ -21,7 +21,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify'
 import 'leaflet/dist/leaflet.css';
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
-import NodesList from './components/NodeTreeComponents/NodeTree/NodeTree'
+import TestRichTreeView from './components/NodeTreeComponents/TestRichTreeView/TestRichTreeView'
+import NodeTree from './components/NodeTreeComponents/NodeTree/NodeTree'
+
 
 
 function App() {
@@ -66,7 +68,7 @@ function App() {
                 <Route path="/dashboard" element={<RouteProtection><Dashboard /></RouteProtection>}>
                   <Route path="" element={<DashboardHome />} />
                   <Route path="analytics" element={<LiveChart />} />
-                  <Route path="nodes" element={<NodesList />} />
+                  <Route path="nodes" element={<NodeTree />} />
                 </Route>
               </Routes>
             }

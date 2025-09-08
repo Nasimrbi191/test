@@ -14,11 +14,10 @@ html {
 .mui-rtl-ydmrf2 {
   max-width: 20% !important;
   overflow: auto;
-  border: 1px solid black;
+  border: 1px solid rgb(187, 184, 184) !important;
   padding: 10px;
+  border-radius: 6px !important;
 }
-
-
 
 a {
   text-decoration: none;
@@ -131,4 +130,8 @@ a {
   font-family: "Fira Sans", sans-serif;
   font-weight: 900;
   font-style: italic;
+}
+
+.MuiRichTreeViewPro-root > div {
+  display: none;
 }

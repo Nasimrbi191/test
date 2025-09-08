@@ -7,16 +7,16 @@ import {
     TreeItemIconContainer,
     TreeItemLabel,
     TreeItemGroupTransition,
+    TreeItemDragAndDropOverlay
 } from "@mui/x-tree-view";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, CircularProgress } from "@mui/material";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
 
 interface AnimatedTreeItemProps {
     onDelete?: (id: string) => void;
@@ -24,10 +24,11 @@ interface AnimatedTreeItemProps {
     itemId: string;
     label: string;
     children?: React.ReactNode;
+    onDoubleClick?: (e: any, id: string) => void;
 }
 
 const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
-    ({ itemId, label, children, onDelete, onEdit }, ref) => {
+    ({ itemId, label, children, onDelete, onEdit, onDoubleClick }, ref) => {
         const {
             getContextProviderProps,
             getRootProps,
@@ -36,14 +37,8 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
             getLabelProps,
             getGroupTransitionProps,
             status,
+            getDragAndDropOverlayProps
         } = useTreeItem({ itemId, children, label, rootRef: ref });
-
-        const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: itemId });
-
-        const style = {
-            transform: CSS.Transform.toString(transform),
-            transition,
-        };
 
         const isFolder = status.expandable;
         const [loading, setLoading] = React.useState(false);
@@ -83,12 +78,19 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
 
         return (
             <TreeItemProvider {...getContextProviderProps()}>
-                <TreeItemRoot {...getRootProps()} ref={setNodeRef} style={style}>
-                    <TreeItemContent {...getContentProps()} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {/* Drag handle */}
+                <TreeItemRoot {...getRootProps()}>
+                    <TreeItemContent
+                        onDoubleClick={(e) => onDoubleClick?.(e, itemId)}
+                        {...getContentProps()}
+                        sx={{
+                            "&:hover .delete-icon": {
+                                opacity: 1
+                            },
+                            position: 'relative'
+                        }}
+                    >
+
                         <Box
-                            {...attributes}
-                            {...listeners}
                             sx={{
                                 cursor: "grab",
                                 display: "flex",
@@ -119,18 +121,15 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
                         </TreeItemLabel>
 
                         {/* Delete */}
-                        <Box
+                        <Box className="delete-icon"
                             component="span"
-                            sx={{ ml: "auto", cursor: "pointer", color: "red" }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete?.(itemId);
-                            }}
+                            sx={{ ml: "auto", cursor: "pointer", color: "red", opacity: 0, position: 'absolute', right: 0 }}
+                            onClick={() => onDelete?.(itemId)}
                         >
                             <DeleteIcon fontSize="small" />
                         </Box>
+                        <TreeItemDragAndDropOverlay {...getDragAndDropOverlayProps()} />
                     </TreeItemContent>
-
                     {/* Children */}
                     <TreeItemGroupTransition {...getGroupTransitionProps()}>
                         {lazyChildren}

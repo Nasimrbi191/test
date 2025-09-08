@@ -1,20 +1,10 @@
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
-import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
-import React, { useEffect, useState } from 'react';
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, Snackbar, TextField } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
-import {
-    DndContext,
-    closestCenter,
-    DragEndEvent,
-} from "@dnd-kit/core";
-import {
-    SortableContext,
-    verticalListSortingStrategy,
-    arrayMove,
-} from "@dnd-kit/sortable";
 import SortableTreeItem from '../SortableTreeItem/SortableTreeItem';
 import { RichTreeViewPro } from '@mui/x-tree-view-pro/RichTreeViewPro';
+
 
 interface node {
     id: string;
@@ -22,15 +12,6 @@ interface node {
     children: any[];
     priority: string;
 }
-
-interface NodeItem {
-    id: string;
-    label: string;
-    children: NodeItem[];
-    priority: string;
-    parentId?: string | null;
-}
-
 
 function NodeTree() {
     const { t } = useTranslation();
@@ -49,32 +30,6 @@ function NodeTree() {
     const [selectedChildrenItem, setSelectedChildrenItem] = useState<node | null>(null);
     const [nodeId, setNodeId] = useState('');
     const newNodeId = crypto.randomUUID();
-
-    // Flatten tree
-    const flattenTree = (nodes: NodeItem[], parentId: string | null = null): NodeItem[] =>
-        nodes.flatMap(node => [
-            { ...node, parentId },
-            ...flattenTree(node.children || [], node.id),
-        ]);
-
-    // Rebuild tree
-    const rebuildTree = (flatNodes: NodeItem[]): NodeItem[] => {
-        const map = new Map<string, NodeItem & { children: NodeItem[] }>();
-        const roots: NodeItem[] = [];
-
-        flatNodes.forEach(n => map.set(n.id, { ...n, children: [] }));
-
-        flatNodes.forEach(n => {
-            if (n.parentId) {
-                const parent = map.get(n.parentId);
-                if (parent) parent.children.push(map.get(n.id)!);
-            } else {
-                roots.push(map.get(n.id)!);
-            }
-        });
-
-        return roots;
-    };
 
 
     const fetchNodes = async () => {
@@ -97,15 +52,33 @@ function NodeTree() {
         setOpenDialog(true);
     };
 
+    function findNodeById(nodes: any[], id: string): any | null {
+        for (const node of nodes) {
+            if (node.id === id) {
+                return node;
+            }
+            if (node.children && node.children.length > 0) {
+                const found = findNodeById(node.children, id);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
     const getEachItem = (event: React.MouseEvent, id: any) => {
         const fullItem = nodes?.find((node: any) => node.id === id);
         setSelectedNode(fullItem || null);
-        const fullItemChildren = nodes?.filter((node: any) => node?.children?.length > 0).map((node) => node.children).flat().find((node: any) => node.id === id);
+        const fullItemChildren = findNodeById(nodes, id);
         setSelectedChildrenItem(fullItemChildren || null);
         setNodeName(fullItem?.label || '');
         setNodeNameChildren(fullItemChildren?.label || '');
         setNodeId(id);
     }
+
+    useEffect(() => {
+        setNewNodeParent(selectedNode ? selectedNode?.id : selectedChildrenItem?.id)
+    }, [selectedNode, selectedChildrenItem])
+
 
     // add node
     const AddNode = async () => {
@@ -146,7 +119,23 @@ function NodeTree() {
         }
     }
 
-    // add chidren node 
+    // add Child To Tree
+
+    function addChildToTree(nodes, parentId, newChild) {
+        return nodes.map(node => {
+            if (node.id === parentId) {
+                return { ...node, children: [...(node.children || []), newChild] };
+            }
+
+            if (node.children && node.children.length > 0) {
+                return { ...node, children: addChildToTree(node.children, parentId, newChild) };
+            }
+
+            return node;
+        });
+    }
+
+    // add node children
     const AddNodeChildren = async () => {
         if (!childrenNodeName || !newNodeParent) {
             setError(`${t("Please enter a node name and select a parent node.")}`);
@@ -154,12 +143,6 @@ function NodeTree() {
         }
 
         try {
-            const parentNode = nodes?.find((n) => n.id === newNodeParent);
-            if (!parentNode) {
-                setError("Parent node not found.");
-                return;
-            }
-
             const newChild = {
                 id: crypto.randomUUID(),
                 label: childrenNodeName,
@@ -167,34 +150,46 @@ function NodeTree() {
                 priority: "1",
             };
 
-            // ✅ Optimistic update
-            const updatedNodes = nodes?.map((n) =>
-                n.id === parentNode.id
-                    ? { ...n, children: [...(n.children || []), newChild] }
-                    : n
-            );
+            // ✅ Update tree locally
+            const updatedNodes = addChildToTree(nodes, newNodeParent, newChild);
+            setNodes(updatedNodes);
 
-            // setNodes(updatedNodes);
             setChildrenNodeName("");
             setIsSuccess(true);
             setSnackbarType("create");
             setOpenDialog(false);
 
-            // ✅ Backend sync
-            const res = await fetch(`http://localhost:5000/nodes/${parentNode.id}`, {
+            // ✅ Find the top-level parent that contains this nested parent
+            const findTopParent = (nodes, parentId) => {
+                for (let node of nodes) {
+                    if (node.id === parentId) return node;
+                    if (node.children?.length) {
+                        const found = findTopParent(node.children, parentId);
+                        if (found) return node; // return the ancestor top-level
+                    }
+                }
+                return null;
+            };
+
+            const topParent = findTopParent(updatedNodes, newNodeParent);
+
+            if (!topParent) {
+                setError("Top-level parent not found.");
+                return;
+            }
+
+            // ✅ Save whole top-level parent to backend
+            const res = await fetch(`http://localhost:5000/nodes/${topParent.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...parentNode,
-                    children: [...(parentNode.children || []), newChild],
-                }),
+                body: JSON.stringify(topParent),
             });
 
             if (!res.ok) {
-                setError("Error adding child node.");
-                await fetchNodes(); // rollback if failed
+                setError("Error saving updated tree.");
+                await fetchNodes(); // rollback
             } else {
-                await fetchNodes(); // final sync
+                await fetchNodes(); // refresh
             }
         } catch (err) {
             console.error("Error adding child node:", err);
@@ -202,6 +197,7 @@ function NodeTree() {
             await fetchNodes();
         }
     };
+
 
     // edit node
     const EditNode = async () => {
@@ -238,234 +234,212 @@ function NodeTree() {
         }
     }
 
+    function updateNodeInTree(nodes, nodeId, updates) {
+        return nodes.map(node => {
+            if (node.id === nodeId) {
+                return { ...node, ...updates };
+            }
+
+            if (node.children && node.children.length > 0) {
+                return { ...node, children: updateNodeInTree(node.children, nodeId, updates) };
+            }
+
+            return node;
+        });
+    }
+
+
     // edit children node
     const EditChildrenNode = async () => {
-        try {
-            // Find parent of this child if not already selected
-            const parentNode =
-                selectedNode ||
-                nodes?.find(
-                    (n) =>
-                        n.children &&
-                        n.children.length > 0 &&
-                        n.children.some((child) => child.id === selectedChildrenItem?.id)
-                );
+        if (!selectedChildrenItem || !nodeNameChildren) {
+            setError(`${t("Please select a node and enter a name.")}`);
+            return;
+        }
 
-            if (!parentNode) {
-                setError(`${t("Parent node not found.")}`);
+        try {
+            // ✅ Update the node locally (recursively)
+            const updatedNodes = updateNodeInTree(nodes, selectedChildrenItem.id, {
+                label: nodeNameChildren,
+            });
+            setNodes(updatedNodes);
+
+            // ✅ Find the top-level parent of the edited node
+            const findTopParent = (nodes, nodeId) => {
+                for (let node of nodes) {
+                    if (node.id === nodeId) return node;
+                    if (node.children?.length) {
+                        const found = findTopParent(node.children, nodeId);
+                        if (found) {
+                            return node; // bubble up: return ancestor
+                        }
+                    }
+                }
+                return null;
+            };
+
+            const topParent = findTopParent(updatedNodes, selectedChildrenItem.id);
+
+            if (!topParent) {
+                setError(`${t("Top-level parent not found.")}`);
                 return;
             }
 
-            // Update only the clicked child
-            const updatedChildren =
-                parentNode.children && parentNode.children.length > 0
-                    ? parentNode.children.map((child) =>
-                        child.id === selectedChildrenItem?.id
-                            ? { ...child, label: nodeNameChildren }
-                            : child
-                    )
-                    : [];
-
-            const res = await fetch(`http://localhost:5000/nodes/${parentNode.id}`, {
+            // ✅ Save updated top parent to backend
+            const res = await fetch(`http://localhost:5000/nodes/${topParent.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...parentNode,
-                    children: updatedChildren,
-                }),
+                body: JSON.stringify(topParent),
             });
 
-            const data = await res.json();
-            if (!data) {
-                setError(`${t("Error editing child node.")}`);
+            if (!res.ok) {
+                setError(`${t("Error editing node.")}`);
+                await fetchNodes(); // rollback
             } else {
                 setNodeNameChildren("");
                 setIsSuccess(true);
                 setSnackbarType("edit");
+                setOpenDialog(false);
+                await fetchNodes(); // refresh
             }
-
-            await fetchNodes();
-            setOpenDialog(false);
         } catch (err) {
-            console.error("Error editing child node:", err);
+            console.error("Error editing node:", err);
+            setError(`${t("Error editing node.")}`);
         }
     };
 
-    // delete node 
-    const DeleteNode = async () => {
-        try {
-            const res = await fetch(`http://localhost:5000/nodes/${nodeId}`, {
-                method: "DELETE",
-            });
-
-            if (!res.ok) {
-                const errorText = await res.text(); // Get any error message if available
-                setError(`${t("Error deleting node.")}${errorText ? `: ${errorText}` : ''}`);
-            } else {
-                setIsSuccess(true);
-                setSnackbarType("delete");
-            }
-
-            await fetchNodes();
-            setOpenDialog(false);
-        } catch (err) {
-            console.error("Error deleting node:", err);
-            setError(`${t("Error deleting node.")}`);
-            await fetchNodes(); // Still refresh in case of partial success
-            setOpenDialog(false);
-        }
-    }
-
-    // delete children node
-    const DeleteChildrenNode = async () => {
-        if (!selectedChildrenItem) return;
+    // delet node in any level 
+    const DeleteNodeUnified = async (nodeId: string) => {
+        if (!nodeId) return;
 
         try {
-            const parentNode = nodes?.find(
-                (n) => n.children?.some((child) => child.id === selectedChildrenItem.id)
-            );
+            const isTopParent = nodes.some(node => node.id === nodeId);
 
-            if (!parentNode) {
-                setError("Parent node not found.");
+            if (isTopParent) {
+                const res = await fetch(`http://localhost:5000/nodes/${nodeId}`, { method: "DELETE" });
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    setError(`Error deleting node${errorText ? `: ${errorText}` : ""}`);
+                } else {
+                    setIsSuccess(true);
+                    setSnackbarType("delete");
+                }
+                await fetchNodes();
+                setOpenDialog(false);
                 return;
             }
 
-            const updatedChildren = parentNode.children.filter(
-                (child) => child.id !== selectedChildrenItem.id
-            );
+            // Recursive delete
+            function deleteNodeInTree(nodesArray: any[], nodeId: string): any[] {
+                return nodesArray
+                    .map(node => {
+                        if (node.id === nodeId) return null;
+                        if (node.children?.length) {
+                            return { ...node, children: deleteNodeInTree(node.children, nodeId) };
+                        }
+                        return node;
+                    })
+                    .filter(Boolean);
+            }
 
+            // Find top-level parent BEFORE deletion
+            const findTopParent = (nodesArray: any[], nodeId: string): any | null => {
+                for (let node of nodesArray) {
+                    if (node.children?.some(child => child.id === nodeId)) return node;
+                    if (node.children?.length) {
+                        const found = findTopParent(node.children, nodeId);
+                        if (found) return node;
+                    }
+                }
+                return null;
+            };
+
+            const topParent = findTopParent(nodes, nodeId);
+
+            if (!topParent) {
+                setError("Top-level parent not found.");
+                return;
+            }
 
             // ✅ Optimistic update
-            const updatedNodes = nodes?.map((n) =>
-                n.id === parentNode.id ? { ...n, children: updatedChildren } : n
-            );
-            // setNodes(updatedNodes);
+            const updatedNodes = deleteNodeInTree(nodes, nodeId);
+            setNodes(updatedNodes);
 
-            setSelectedChildrenItem(null);
-            setSelectedNode(null);
-            setNodeNameChildren("");
-            setNodeName("");
-            setIsSuccess(true);
-            setSnackbarType("delete");
-            setOpenDialog(false);
+            // ✅ Send updated top-level parent
+            const updatedTopParent = updatedNodes.find(n => n.id === topParent.id);
+            if (!updatedTopParent) {
+                setError("Updated top-level parent not found.");
+                return;
+            }
 
-            // ✅ Backend sync
-            const res = await fetch(`http://localhost:5000/nodes/${parentNode.id}`, {
+            const res = await fetch(`http://localhost:5000/nodes/${updatedTopParent.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...parentNode, children: updatedChildren }),
+                body: JSON.stringify(updatedTopParent),
             });
 
             if (!res.ok) {
-                setError("Error deleting child node.");
-                await fetchNodes(); // rollback
+                setError("Error deleting node.");
+                await fetchNodes();
             } else {
-                await fetchNodes(); // final sync
+                setIsSuccess(true);
+                setSnackbarType("delete");
+                await fetchNodes();
+                setOpenDialog(false);
             }
         } catch (err) {
-            console.error("Error deleting child node:", err);
-            setError("Error deleting child node.");
+            console.error("Error deleting node:", err);
+            setError("Error deleting node.");
             await fetchNodes();
         }
     };
 
-    // handle drag top level nodes
-    const handleDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
+    // all nodes
+    function renderNodes(nodes, level = 0) {
+        return nodes.flatMap(node => [
+            <MenuItem key={node.id} value={node.id}>
+                {"—".repeat(level)} {node.label}
+            </MenuItem>,
+            ...(node.children ? renderNodes(node.children, level + 1) : [])
+        ]);
+    }
 
-        // Find dragged + target index
-        const oldIndex = nodes?.findIndex((n) => n.id === active.id) ?? -1;
-        const newIndex = nodes?.findIndex((n) => n.id === over.id) ?? -1;
+    const treeRef = useRef<any>(null);
 
-        if (oldIndex === -1 || newIndex === -1) return;
+    const handleItemPositionChange = async () => {
+        const newTree = treeRef?.current?.getItemTree();
 
-        // Reorder locally
-        const newNodes = arrayMove(nodes!, oldIndex, newIndex).map((n, idx) => ({
-            ...n,
-            priority: String(idx + 1), // update priority field
-        }));
+        console.log(treeRef);
 
-        setNodes(newNodes);
 
-        // Sync backend
-        for (let node of newNodes) {
-            await fetch(`http://localhost:5000/nodes/${node.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(node),
-            });
-        }
-    };
-    // handle children drag end 
-    const handleChildrenDragEnd = async (event: DragEndEvent, parentId: string) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-        console.log(parentId);
+        const res = await fetch("http://localhost:5000/nodes");
+        const nodes = await res.json();
 
-        // Find the source parent and dragged child
-        const sourceParent = nodes?.find((n) =>
-            n.id === parentId || n.children?.some((c) => c.id === active.id)
+
+        await Promise.all(
+            nodes.map((node: any) =>
+                fetch(`http://localhost:5000/nodes/${node.id}`, { method: "DELETE" })
+            )
         );
 
-        if (!sourceParent) return;
 
-        // Find the dragged child
-        const draggedChild = sourceParent.children?.find((c) => c.id === active.id);
-        if (!draggedChild) return;
+        await Promise.all(
+            newTree.map((node: any) =>
+                fetch("http://localhost:5000/nodes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(node),
+                })
+            )
+        );
 
-        // Check if dropped onto another child (possibly new parent)
-        const targetNode = nodes?.find((n) => n.id === over.id);
-        let targetParent = sourceParent;
-
-        // If dropped on a top-level node that is different, change parent
-        if (targetNode && targetNode.id !== parentId) {
-            targetParent = targetNode;
-        } else {
-            // Or dropped onto another child in same parent
-            const childParent = nodes?.find((n) =>
-                n.children?.some((c) => c.id === over.id)
-            );
-            if (childParent) targetParent = childParent;
-        }
-
-        // Remove child from old parent
-        const updatedSourceChildren = sourceParent.children?.filter((c) => c.id !== active.id) || [];
-
-        // Determine new index in target parent's children
-        const targetIndex = targetParent.children?.findIndex((c) => c.id === over.id) ?? 0;
-
-        // Insert dragged child into new parent at target index
-        const updatedTargetChildren = [
-            ...targetParent.children?.slice(0, targetIndex),
-            draggedChild,
-            ...targetParent.children?.slice(targetIndex),
-        ];
-
-        // Update nodes state
-        const updatedNodes = nodes?.map((n) => {
-            if (n.id === sourceParent.id) return { ...n, children: updatedSourceChildren };
-            if (n.id === targetParent.id) return { ...n, children: updatedTargetChildren };
-            return n;
-        });
-
-        setNodes(updatedNodes);
-
-        // Sync backend
-        const parentsToUpdate = [sourceParent, targetParent].filter(Boolean);
-        for (let p of parentsToUpdate) {
-            await fetch(`http://localhost:5000/nodes/${p.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(p),
-            });
-        }
+        console.log("Database replaced successfully");
     };
 
 
 
     return (
         <>
+
             {/* Snackbars */}
             {(error !== '' || isSuccess) && (
                 <Snackbar open={error !== '' || isSuccess} autoHideDuration={3000} onClose={() => {
@@ -553,14 +527,10 @@ function NodeTree() {
                                                 onChange={(e) => setNewNodeParent(e.target.value)}
                                                 fullWidth
                                                 variant="standard"
-                                                sx={{ mt: 4 }}
+                                                sx={{ mt: 4, overflow: 'auto' }}
                                                 label={t('Parent Node')}
                                             >
-                                                {nodes?.map((node) => (
-                                                    <MenuItem key={node.id} value={node.id}>
-                                                        {node.label}
-                                                    </MenuItem>
-                                                ))}
+                                                {renderNodes(nodes)}
                                             </Select>
                                         </FormControl>
                                     </DialogContent>
@@ -628,13 +598,7 @@ function NodeTree() {
                                         {
                                             selectedChildrenItem && (
 
-                                                <Button onClick={() => DeleteChildrenNode()}>{t('Yes, Delete')}</Button>
-                                            )
-                                        }
-                                        {
-                                            !selectedChildrenItem && (
-                                                <Button onClick={() => DeleteNode()}>{t('Yes, Delete')}</Button>
-
+                                                <Button onClick={() => DeleteNodeUnified(nodeId)}>{t('Yes, Delete')}</Button>
                                             )
                                         }
                                     </DialogActions>
@@ -649,92 +613,30 @@ function NodeTree() {
             </Box>
             {/* tree view */}
             <Box sx={{ width: '100%', maxWidth: 360 }}>
-                <DndContext
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={nodes?.map((n) => n.id) || []}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <RichTreeViewPro
-                            items={nodes?.sort((a, b) => Number(a.priority) - Number(b.priority)) || []}
-                            onItemClick={(event, id) => getEachItem(event, id)}
-                            itemsReordering
-                            slots={{ item: SortableTreeItem }}
-                            slotProps={{
-                                item: {
-                                    onDelete: (id: string) => {
-                                        setNodeId(id);
-                                        const child = nodes?.flatMap((n) => n.children || []).find((c) => c.id === id);
-                                        setSelectedChildrenItem(child || null);
-                                        setDialogType("delete");
-                                        setOpenDialog(true);
-                                    },
-                                    onEdit: (id: string) => {
-                                        const child = nodes?.flatMap((n) => n.children || []).find((c) => c.id === id);
-                                        setSelectedChildrenItem(child || null);
-                                        setDialogType("edit");
-                                        setOpenDialog(true);
-                                    },
-                                    renderChildren: (children: node[], parentId: string) => (
-                                        <DndContext
-                                            collisionDetection={closestCenter}
-                                            onDragEnd={(event) => handleChildrenDragEnd(event, parentId)}
-                                        >
-                                            <SortableContext
-                                                items={children.map((c) => c.id)}
-                                                strategy={verticalListSortingStrategy}
-                                            >
-                                                {children.map((child) => (
-                                                    <SortableTreeItem
-                                                        key={child.id}
-                                                        itemId={child.id}
-                                                        label={child.label}
-                                                        onDelete={() => {
-                                                            setSelectedChildrenItem(child);
-                                                            setDialogType("delete");
-                                                            setOpenDialog(true);
-                                                        }}
-                                                        onEdit={() => {
-                                                            setSelectedChildrenItem(child);
-                                                            setDialogType("edit");
-                                                            setOpenDialog(true);
-                                                        }}
-                                                    >
-                                                        {child.children?.length > 0 &&
-                                                            <>
-                                                                {child.children.map((grandChild) => (
-                                                                    <SortableTreeItem
-                                                                        key={grandChild.id}
-                                                                        itemId={grandChild.id}
-                                                                        label={grandChild.label}
-                                                                        onDelete={() => {
-                                                                            setSelectedChildrenItem(grandChild);
-                                                                            setDialogType("delete");
-                                                                            setOpenDialog(true);
-                                                                        }}
-                                                                        onEdit={() => {
-                                                                            setSelectedChildrenItem(grandChild);
-                                                                            setDialogType("edit");
-                                                                            setOpenDialog(true);
-                                                                        }}
-                                                                    />
-                                                                ))}
-
-                                                            </>
-
-                                                        }
-                                                    </SortableTreeItem>
-                                                ))}
-                                            </SortableContext>
-                                        </DndContext>
-                                    ),
-                                } as any
-                            }}
-                        />
-                    </SortableContext>
-                </DndContext>
+                <RichTreeViewPro
+                    apiRef={treeRef}
+                    items={nodes || []}
+                    itemsReordering
+                    onItemPositionChange={handleItemPositionChange}
+                    slots={{ item: SortableTreeItem }}
+                    onItemClick={(event, id) => getEachItem(event, id)}
+                    slotProps={{
+                        item: {
+                            onDoubleClick: (event: React.MouseEvent, id: string) => {
+                                event.preventDefault();
+                                setDialogType("edit");
+                                setOpenDialog(true);
+                                getEachItem(event, id);
+                            },
+                            onDelete: (event: React.MouseEvent, id: string) => {
+                                setNodeId(id);
+                                setDialogType("delete");
+                                setOpenDialog(true);
+                                getEachItem(event, id);
+                            },
+                        } as any,
+                    }}
+                />
             </Box>
         </>
     )

@@ -1,10 +1,13 @@
 import AnimatedTreeItem from "../AnimatedTreeItem/AnimatedTreeItem";
+import {forwardRef} from 'react'
 
-export default function SortableTreeItem(props: any) {
-
+const SortableTreeItem = forwardRef((props: any,ref) => {
     return (
         <AnimatedTreeItem
             {...props}
+            ref={ref}
         />
     );
-}
+})
+
+export default SortableTreeItem;

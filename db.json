@@ -1,118 +1,55 @@
 {
   "nodes": [
     {
-      "id": "9431f2c0-56e2-483c-8b3f-b09da7e8f439",
-      "label": "hhhhh",
+      "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a2078d1a",
+      "label": "t6tyty",
+      "priority": "1"
+    },
+    {
+      "id": "55b0168c-cada-46b0-bdec-82498205c7e9",
+      "label": "تعتتتت",
+      "priority": "1",
       "children": [
         {
-          "id": "a9016d3a-c7bf-4897-9f25-1029ac367b44",
-          "label": "drfgd",
+          "id": "e125f352-381e-456a-b252-75d33016881e",
+          "label": "5tyty",
+          "priority": "1",
           "children": [
             {
-              "id": "a9016d3a-c7bf-4897-9f25-1029ac367b45",
-              "label": "drfgd",
-              "children": [],
+              "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a207dd1a",
+              "label": "t6tyty",
               "priority": "1"
             },
             {
-              "id": "c4bb0724-9e4b-4995-b144-8ef7faad5f14",
-              "label": "dddd",
-              "children": [],
-              "priority": "1"
-            },
-            {
-              "id": "ae16453b-62ac-44db-8025-d0a338dc1ea1",
-              "label": "gggg",
+              "id": "d0a1aa62-72ad-4f8f-b1dd-7dddf33a207da",
+              "label": "t6tyty",
+              "priority": "1",
               "children": [
                 {
-                  "id": "a9016d3a-c7bf-4897-9f25-1029ac367b4a",
-                  "label": "drfgd",
-                  "children": [],
-                  "priority": "1"
-                },
-                {
-                  "id": "c4bb0724-9e4b-4995-b144-8ef7faad5f1a",
-                  "label": "dddd",
-                  "children": [],
-                  "priority": "1"
-                },
-                {
-                  "id": "ae16453b-62ac-44db-8025-d0a338dc1eaa",
-                  "label": "gggg",
-                  "children": [],
+                  "id": "d0a1aa62-72ad-4f8f-b1dd-7f3407dd1a",
+                  "label": "t6tyty",
                   "priority": "1"
                 }
-              ],
+              ]
+            },
+            {
+              "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a207dd1a",
+              "label": "t6tyty",
               "priority": "1"
             }
-          ],
-          "priority": "1"
-        },
-        {
-          "id": "c4bb0724-9e4b-4995-b144-8ef7faad5f13",
-          "label": "dddd",
-          "children": [],
-          "priority": "1"
-        },
-        {
-          "id": "ae16453b-62ac-44db-8025-d0a338dc1ea2",
-          "label": "gggg",
-          "children": [],
-          "priority": "1"
+          ]
         }
-      ],
-      "priority": "3"
+      ]
     },
     {
-      "id": "0baa910a-c6ed-4b95-b64f-8a252c9f42a5",
-      "label": "gggggesfdrfg",
-      "children": [
-        {
-          "id": "6a0125cc-7eaa-4da7-8ffb-675a610e6bd4",
-          "label": "fghfghaaaa",
-          "children": [],
-          "priority": "1"
-        }
-      ],
-      "priority": "4"
+      "id": "173856c9-df86-4eb0-8325-8da1de2f0e52",
+      "label": "tttttewerferer",
+      "priority": "1"
     },
     {
-      "id": "81a521a3-b7a2-4260-b7f3-63c10f322931",
-      "label": "fffffvvvv",
-      "children": [
-        {
-          "id": "1d2f7fd2-83b4-4331-a5d3-53814f0f730b",
-          "label": "fgfg",
-          "children": [],
-          "priority": "1"
-        }
-      ],
-      "priority": "2"
-    },
-    {
-      "id": "7555a66b-5724-4d7f-9c06-31d679aeab84",
-      "label": "333",
-      "children": [
-        {
-          "id": "3bb56308-618a-4bd3-96e0-8e8c70b8d249",
-          "label": "ssss",
-          "children": [],
-          "priority": "1"
-        }
-      ],
-      "priority": "5"
-    },
-    {
-      "id": "ae26e916-3522-4f80-a730-864203a7b71b",
-      "label": "sdsdfddesxf",
-      "children": [
-        {
-          "id": "1fe60917-8276-4fb5-bfd0-355f46f8b58b",
-          "label": "esdsed",
-          "children": [],
-          "priority": "1"
-        }
-      ],
+      "id": "a3df4fe3-1e6e-4ff3-b052-a20141ff5320",
+      "label": "llll",
+      "children": [],
       "priority": "1"
     }
   ]

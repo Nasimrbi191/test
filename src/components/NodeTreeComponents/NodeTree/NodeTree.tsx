@@ -248,7 +248,6 @@ function NodeTree() {
         });
     }
 
-
     // edit children node
     const EditChildrenNode = async () => {
         if (!selectedChildrenItem || !nodeNameChildren) {
@@ -407,20 +406,14 @@ function NodeTree() {
 
     const handleItemPositionChange = async () => {
         const newTree = treeRef?.current?.getItemTree();
-
-        console.log(treeRef);
-
-
         const res = await fetch("http://localhost:5000/nodes");
         const nodes = await res.json();
-
 
         await Promise.all(
             nodes.map((node: any) =>
                 fetch(`http://localhost:5000/nodes/${node.id}`, { method: "DELETE" })
             )
         );
-
 
         await Promise.all(
             newTree.map((node: any) =>
@@ -628,7 +621,7 @@ function NodeTree() {
                                 setOpenDialog(true);
                                 getEachItem(event, id);
                             },
-                            onDelete: (event: React.MouseEvent, id: string) => {
+                            onDelete: (event:React.MouseEvent,id: string) => {
                                 setNodeId(id);
                                 setDialogType("delete");
                                 setOpenDialog(true);

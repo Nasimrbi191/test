@@ -1,43 +1,14 @@
 {
   "nodes": [
     {
-      "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a2078d1a",
-      "label": "t6tyty",
-      "priority": "1"
-    },
-    {
       "id": "55b0168c-cada-46b0-bdec-82498205c7e9",
       "label": "تعتتتت",
       "priority": "1",
       "children": [
         {
-          "id": "e125f352-381e-456a-b252-75d33016881e",
-          "label": "5tyty",
-          "priority": "1",
-          "children": [
-            {
-              "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a207dd1a",
-              "label": "t6tyty",
-              "priority": "1"
-            },
-            {
-              "id": "d0a1aa62-72ad-4f8f-b1dd-7dddf33a207da",
-              "label": "t6tyty",
-              "priority": "1",
-              "children": [
-                {
-                  "id": "d0a1aa62-72ad-4f8f-b1dd-7f3407dd1a",
-                  "label": "t6tyty",
-                  "priority": "1"
-                }
-              ]
-            },
-            {
-              "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a207dd1a",
-              "label": "t6tyty",
-              "priority": "1"
-            }
-          ]
+          "id": "d0a1aa62-72ad-4f8f-b1dd-7f33a2078d1a",
+          "label": "t6tyty",
+          "priority": "1"
         }
       ]
     },
@@ -49,7 +20,6 @@
     {
       "id": "a3df4fe3-1e6e-4ff3-b052-a20141ff5320",
       "label": "llll",
-      "children": [],
       "priority": "1"
     }
   ]

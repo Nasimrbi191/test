@@ -32,6 +32,7 @@ function NodeTree() {
     const newNodeId = crypto.randomUUID();
 
 
+
     const fetchNodes = async () => {
         try {
             const response = await fetch('http://localhost:5000/nodes');
@@ -39,6 +40,42 @@ function NodeTree() {
             setNodes(data);
         } catch (error) {
             console.error('Error fetching nodes:', error);
+        }
+    };
+
+    const selectedChildrenRef = React.useRef(selectedChildrenItem);
+
+    React.useEffect(() => {
+        selectedChildrenRef.current = selectedChildrenItem;
+    }, [selectedChildrenItem]);
+
+
+    const fetchChildrensNode = async (parentId: string | null): Promise<any[]> => {
+        // debugger
+        try {
+            const url = parentId
+                ? `http://localhost:5000/nodes/${parentId}`
+                : `http://localhost:5000/nodes`;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                console.warn(`Fetch failed with status ${response.status}`);
+                return Array.isArray(selectedChildrenRef.current?.children)
+                    ? selectedChildrenRef.current!.children
+                    : [];
+            }
+
+            const data = await response.json();
+
+            if (parentId) {
+                return data.children ?? [];
+            } else {
+                return data ?? [];
+            }
+        } catch (error) {
+            console.error("Error fetching children:", error);
+            return [];
         }
     };
 
@@ -306,7 +343,7 @@ function NodeTree() {
         }
     };
 
-    // delet node in any level 
+    // delete node in any level
     const DeleteNodeUnified = async (nodeId: string) => {
         if (!nodeId) return;
 
@@ -428,11 +465,8 @@ function NodeTree() {
         console.log("Database replaced successfully");
     };
 
-
-
     return (
         <>
-
             {/* Snackbars */}
             {(error !== '' || isSuccess) && (
                 <Snackbar open={error !== '' || isSuccess} autoHideDuration={3000} onClose={() => {
@@ -513,7 +547,7 @@ function NodeTree() {
                                             fullWidth
                                             variant="standard"
                                         />
-                                        <FormControl fullWidth sx={{ mt: 4 }}>
+                                        {/* <FormControl fullWidth sx={{ mt: 4 }}>
                                             <InputLabel id="demo-simple-select-label">{t('Parent Node')}</InputLabel>
                                             <Select
                                                 value={newNodeParent}
@@ -525,7 +559,7 @@ function NodeTree() {
                                             >
                                                 {renderNodes(nodes)}
                                             </Select>
-                                        </FormControl>
+                                        </FormControl> */}
                                     </DialogContent>
                                     <DialogActions>
                                         <Button onClick={() => {
@@ -610,18 +644,19 @@ function NodeTree() {
                     apiRef={treeRef}
                     items={nodes || []}
                     itemsReordering
+                    // isItemEditable
                     onItemPositionChange={handleItemPositionChange}
                     slots={{ item: SortableTreeItem }}
                     onItemClick={(event, id) => getEachItem(event, id)}
                     slotProps={{
                         item: {
-                            onDoubleClick: (event: React.MouseEvent, id: string) => {
-                                event.preventDefault();
-                                setDialogType("edit");
-                                setOpenDialog(true);
-                                getEachItem(event, id);
-                            },
-                            onDelete: (event:React.MouseEvent,id: string) => {
+                            // onDoubleClick: (event: React.MouseEvent, id: string) => {
+                            //     event.preventDefault();
+                            //     setDialogType("edit");
+                            //     setOpenDialog(true);
+                            //     getEachItem(event, id);
+                            // },
+                            onDelete: (event: React.MouseEvent, id: string) => {
                                 setNodeId(id);
                                 setDialogType("delete");
                                 setOpenDialog(true);
@@ -629,6 +664,62 @@ function NodeTree() {
                             },
                         } as any,
                     }}
+                    isItemEditable
+                    onItemLabelChange={ async (itemId, label) => {
+                        try {
+                            // ✅ Update the node locally (recursively)
+                            const updatedNodes = updateNodeInTree(nodes, itemId, {
+                                label: label,
+                            });
+                            setNodes(updatedNodes);
+
+                            // ✅ Find the top-level parent of the edited node
+                            const findTopParent = (nodes, nodeId) => {
+                                for (let node of nodes) {
+                                    if (node.id === nodeId) return node;
+                                    if (node.children?.length) {
+                                        const found = findTopParent(node.children, nodeId);
+                                        if (found) {
+                                            return node; // bubble up: return ancestor
+                                        }
+                                    }
+                                }
+                                return null;
+                            };
+
+                            const topParent = findTopParent(updatedNodes, itemId);
+
+                            if (!topParent) {
+                                setError(`${t("Top-level parent not found.")}`);
+                                return;
+                            }
+
+                            // ✅ Save updated top parent to backend
+                            const res = await fetch(`http://localhost:5000/nodes/${topParent.id}`, {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(topParent),
+                            });
+
+                            if (!res.ok) {
+                                setError(`${t("Error editing node.")}`);
+                                await fetchNodes(); // rollback
+                            } else {
+                                setNodeNameChildren("");
+                                setIsSuccess(true);
+                                setSnackbarType("edit");
+                                setOpenDialog(false);
+                                await fetchNodes(); // refresh
+                            }
+                        } catch (err) {
+                            console.error("Error editing node:", err);
+                            setError(`${t("Error editing node.")}`);
+                        }
+                    }}
+                    // dataSource={{
+                    //     getChildrenCount: (item: any) => item?.children?.length || 0,
+                    //     getTreeItems: fetchChildrensNode,
+                    // }}
                 />
             </Box>
         </>

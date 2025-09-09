@@ -7,7 +7,7 @@ import {
     TreeItemIconContainer,
     TreeItemLabel,
     TreeItemGroupTransition,
-    TreeItemDragAndDropOverlay
+    TreeItemDragAndDropOverlay, TreeItemLabelInput
 } from "@mui/x-tree-view";
 import FolderIcon from "@mui/icons-material/Folder";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
@@ -35,15 +35,15 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
             getContentProps,
             getIconContainerProps,
             getLabelProps,
+            getLabelInputProps,
             getGroupTransitionProps,
             status,
             getDragAndDropOverlayProps
-        } = useTreeItem({ itemId, children, label, rootRef: ref });
+    } = useTreeItem({ itemId, children, label, rootRef: ref });
 
         const isFolder = status.expandable;
         const [loading, setLoading] = React.useState(false);
         const [lazyChildren, setLazyChildren] = React.useState<React.ReactNode | null>(null);
-
         const childIds = React.useMemo(
             () => React.Children.toArray(children).map((c: any) => c.key).join(","),
             [children]
@@ -76,6 +76,7 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
             }
         }, [status.expanded, isFolder, lazyChildren, children]);
 
+          
         return (
             <TreeItemProvider {...getContextProviderProps()}>
                 <TreeItemRoot {...getRootProps()}>
@@ -89,7 +90,6 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
                             position: 'relative'
                         }}
                     >
-
                         <Box
                             sx={{
                                 cursor: "grab",
@@ -114,11 +114,17 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
                                 <InsertDriveFileIcon sx={{ color: "gray" }} />
                             )}
                         </TreeItemIconContainer>
+                        {/*/!* Label *!/*/}
+                        {/*<TreeItemLabel {...getLabelProps()} onClick={() => onEdit?.(itemId)}>*/}
+                        {/*    {label}*/}
+                        {/*</TreeItemLabel>*/}
 
-                        {/* Label */}
-                        <TreeItemLabel {...getLabelProps()} onClick={() => onEdit?.(itemId)}>
-                            {label}
-                        </TreeItemLabel>
+                        {/* Label or Editable Input */}
+                        {status.editing ? (
+                            <TreeItemLabelInput  {...getLabelInputProps()} />
+                        ) : (
+                            <TreeItemLabel {...getLabelProps()}>{label}</TreeItemLabel>
+                        )}
 
                         {/* Delete */}
                         <Box className="delete-icon"
@@ -128,6 +134,12 @@ const AnimatedTreeItem = React.forwardRef<HTMLLIElement, AnimatedTreeItemProps>(
                         >
                             <DeleteIcon fontSize="small" />
                         </Box>
+                        {/*/!*Edit*!/*/}
+                        {/*<Box className={'edit-icon'}>*/}
+                        {/*    component="span"*/}
+                        {/*    sx={{ ml: "auto", cursor: "pointer", color: "red", opacity: 0, position: 'absolute', right: 0 }}*/}
+                        {/*    */}
+                        {/*</Box>*/}
                         <TreeItemDragAndDropOverlay {...getDragAndDropOverlayProps()} />
                     </TreeItemContent>
                     {/* Children */}
